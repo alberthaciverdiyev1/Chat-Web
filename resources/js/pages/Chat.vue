@@ -1,0 +1,1 @@
+<template><div><h3>Chat page</h3></div></template>
