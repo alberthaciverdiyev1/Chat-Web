@@ -32,6 +32,10 @@
                 <input id="register-username" type="text" v-model="registerData.username"
                     class="block w-full p-2 border border-slate-300 rounded-md focus:outline-none focus:ring focus:ring-slate-400 mb-3"
                     placeholder="Enter your username">
+                <label for="register-email" class="block text-sm font-medium text-gray-200 mb-1">Username</label>
+                <input id="register-email" type="email" v-model="registerData.email"
+                       class="block w-full p-2 border border-slate-300 rounded-md focus:outline-none focus:ring focus:ring-slate-400 mb-3"
+                       placeholder="Enter your email">
                 <label for="register-password" class="block text-sm font-medium text-gray-200 mb-1">Password</label>
                 <input id="register-password" type="password" v-model="registerData.password"
                     class="block w-full p-2 border border-slate-300 rounded-md focus:outline-none focus:ring focus:ring-slate-400 mb-3"
@@ -66,7 +70,8 @@ export default {
             registerData: {
                 username: '',
                 password: '',
-                confirmPassword: ''
+                confirmPassword: '',
+                email: '',
             }
         };
     },

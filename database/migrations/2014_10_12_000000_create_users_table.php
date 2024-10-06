@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('username');
             $table->string('email')->unique();
-            $table->integer('email_code');
+            $table->integer('email_code')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('pinned')->default(false);
             $table->longText("profile_image")->nullable();

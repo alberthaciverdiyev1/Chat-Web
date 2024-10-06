@@ -29,7 +29,7 @@ class MessageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|exists:users,id',
-            'message' => 'required|string',
+            'message' => 'required|st   ring',
         ]);
 
         if ($validator->fails()) {

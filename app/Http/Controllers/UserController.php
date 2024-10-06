@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -14,10 +16,10 @@ class UserController extends Controller
     function Register(Request $request): string
     {
         $validator = Validator::make($request->all(), [
-            'user_name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'confirm_password' => ['required', 'string', 'min:8','same:password'],
+            'password' => ['required', 'string', 'min:4'],
+            'confirmPassword' => ['required', 'string', 'min:4', 'same:password'],
         ]);
 
         if ($validator->fails()) {
@@ -25,34 +27,63 @@ class UserController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+        try {
+            User::create([
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+            return response()->json([
+                'message' => 'User registered successfully!',
+            ], 201);
+        } catch (\Illuminate\Database\QueryException|\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 500);
 
-        $user = User::create([
-            'user_name' => $request->user_name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return response()->json([
-            'message' => 'User registered successfully!',
-            'user' => $user
-        ], 201);
-    }
-
-    function Login(Request $request): string
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-
-            return redirect()->intended('dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+    }
+
+    function Login(Request $request)
+    {
+        $credentials = $request->validate([
+            'username' => ['required'],
+            'password' => ['required'],
+        ]);
+        $user = User::where('username', $credentials['username'])->first();
+
+        if (!$user || !password_verify($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Username or password is invalid',
+            ], 401);
+        }
+
+        try {
+            $token = JWTAuth::fromUser($user);
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Could not create token'], 500);
+        }
+//        $token = JWTAuth::attempt($credentials);
+//        if (!$token) {
+//            return response()->json([
+//                'message' => 'Username or password is invalid',
+//            ], 401);
+//        }
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token
+        ], 200)->cookie('token', $token, 60, null, null, true, true);
+    }
+
+    public function user(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    public function logout(Request $request)
+    {
+        JWTAuth::invalidate(JWTAuth::getToken());
+        return response()->json(['message' => 'Successfully logged out']);
     }
 }
