@@ -8,4 +8,4 @@ import App from './App.vue';
 createApp(App)
     .use(router)
     .use(store)
-    .mount('#app'); 
+    .mount('#app');

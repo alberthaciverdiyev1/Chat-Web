@@ -59,21 +59,16 @@ class UserController extends Controller
             ], 401);
         }
 
-        try {
-            $token = JWTAuth::fromUser($user);
-        } catch (JWTException $e) {
-            return response()->json(['message' => 'Could not create token'], 500);
+        $token = JWTAuth::attempt($credentials);
+        if (!$token) {
+            return response()->json([
+                'message' => 'Username or password is invalid',
+            ], 401);
         }
-//        $token = JWTAuth::attempt($credentials);
-//        if (!$token) {
-//            return response()->json([
-//                'message' => 'Username or password is invalid',
-//            ], 401);
-//        }
         return response()->json([
             'message' => 'Login successful',
             'token' => $token
-        ], 200)->cookie('token', $token, 60, null, null, true, true);
+        ], 200)->cookie('token', $token, 180, null, null, false, true);
     }
 
     public function user(Request $request)

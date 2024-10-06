@@ -20,10 +20,11 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'Login']);
 
+Route::post('/send-message', [MessageController::class, 'sendMessage']);
 Route::middleware('auth:api')->prefix('/')->group(function () {
-    Route::get('/user-info',function (){return response()->json(JWTAuth::parseToken()->authenticate());});
-
-    Route::post('/send-message', [MessageController::class, 'sendMessage']);
-    Route::get('/get-messages', [MessageController::class, 'receivedMessages']);
+    Route::get('/user-info', function () {return response()->json(JWTAuth::parseToken()->authenticate());});
+    Route::get('/get-user-with-messages', [MessageController::class, 'receiveUsersWithMessages']);
+    Route::get('/messages-details/{id}', [MessageController::class, 'chatMessages']);
+    Route::post('/logout', [UserController::class, 'logout']);
 });
 

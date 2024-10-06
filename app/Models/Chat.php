@@ -11,7 +11,7 @@ class Chat extends Model
     protected $fillable = [
         'sender_id',
         'receiver_id',
-        'message_body',
+        'message',
     ];
 
     public function sender()
